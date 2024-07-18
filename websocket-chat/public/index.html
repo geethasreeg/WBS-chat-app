@@ -1,0 +1,121 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #ff6f61;
+        }
+        #chat {
+            width: 80%;
+            max-height: 400px;
+            overflow-y: scroll;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        #message {
+            width: 75%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-right: 5px;
+            font-size: 16px;
+        }
+        #send {
+            width: 20%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #ff6f61;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #send:hover {
+            background-color: #e65c50;
+        }
+        .message {
+            border-radius: 5px;
+            padding: 8px;
+            margin: 5px 0;
+            max-width: 70%;
+        }
+        .sender {
+            background-color: #d1e7dd;
+            align-self: flex-end;
+        }
+        .receiver {
+            background-color: #f8d7da;
+            align-self: flex-start;
+        }
+        .message-container {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Chat</h1>
+    <div id="chat" class="message-container"></div>
+    <div style="display: flex; width: 80%;">
+        <input type="text" id="message" placeholder="Type a message..." />
+        <button id="send">Send</button>
+    </div>
+
+    <script>
+        const chat = document.getElementById('chat');
+        const messageInput = document.getElementById('message');
+        const sendButton = document.getElementById('send');
+
+        const ws = new WebSocket('ws://localhost:3000');
+
+        ws.onmessage = (event) => {
+            const message = document.createElement('div');
+            message.classList.add('message', 'receiver');
+            message.textContent = event.data;
+            chat.appendChild(message);
+            chat.scrollTop = chat.scrollHeight;
+        };
+
+        sendButton.onclick = () => {
+            const message = messageInput.value;
+            if (message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'sender');
+                messageDiv.textContent = message;
+                chat.appendChild(messageDiv);
+                ws.send(message);
+                messageInput.value = '';
+                chat.scrollTop = chat.scrollHeight;
+            }
+        };
+
+        messageInput.onkeyup = (event) => {
+            if (event.key === 'Enter') {
+                sendButton.click();
+            }
+        };
+    </script>
+</body>
+</html>
+
